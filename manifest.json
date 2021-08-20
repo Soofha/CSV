@@ -1,0 +1,41 @@
+{
+  "name": "ControlSpeedVideo",
+  "description": "Control speed in video",
+  "version": "1.0",
+  "manifest_version": 2,
+  "permissions": [
+    "storage"
+  ],
+  "browser_action": {
+    "default_popup": "SettingSpeed.html",
+    "default_icon": "CSV_logo.png",
+    "javascript": ["ba_SettingSpeed.js"]
+    
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["cs_ControlYouTube.js"]
+    }
+  ],
+  "background":
+    {
+    "scripts": ["bg_KeyHots.js"],
+    "persistent": true
+    },
+  "commands": {
+    "Speed1": {
+      "suggested_key": "Ctrl+Shift+1",
+      "description": "Speed1"
+    },
+    "Speed2": {
+      "suggested_key": "Ctrl+Shift+2",
+      "description": "Speed2"
+    },
+    "Speed3": {
+      "suggested_key": "Ctrl+Shift+3",
+      "description": "Speed3"
+    }
+    
+  }
+}
