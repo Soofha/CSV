@@ -14,6 +14,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         break;
     }
 });
+//Приходится ждать 5 сек что бы страница "точно" создалась так как объекты появляютя после загрузки страницы
 setTimeout(()=>{
     if(!document.getElementsByTagName("video")[0]){
         return;
@@ -42,7 +43,7 @@ setTimeout(()=>{
         attributes: true
     
     });
-}, 1000);
+}, 5000);
 
 function hotKeys(value){
     switch(value){
