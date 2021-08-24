@@ -17,6 +17,10 @@
       "matches": ["https://www.youtube.com/*"],
       "js": ["cs_ControlYouTube.js"]
     }
+    ,{
+      "matches": ["http://seasonvar.ru/*"],
+      "js":["cs_ControlSeasonvar.js"]
+    }
   ],
   "background":
     {
