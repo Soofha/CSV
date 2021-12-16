@@ -14,37 +14,28 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         break;
     }
 });
-//Приходится ждать 5 сек что бы страница "точно" создалась так как объекты появляютя после загрузки страницы
-setTimeout(()=>{
-    if(!document.getElementsByTagName("video")[0]){
-        return;
+
+
+MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+//При добавлении/создании нового эллемента в DOM проверяем его на видео
+//TODO вызывается крайне часто, не помешает оптимизация
+var observer = new MutationObserver(function(mutationsList, observer) {
+  for(let mutation of mutationsList) {
+    for(let node of mutation.addedNodes) {
+      if(node instanceof HTMLVideoElement){ 
+        speedDefault();
+      }
     }
-    chrome.storage.sync.get({
-        videoSpeed: 1
-        
-    }, function(items) {
-        speed(items.videoSpeed);
-    });
+  }
 
-    MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+});
 
-    var observer = new MutationObserver(function(mutations, observer) {
-        chrome.storage.sync.get({
-            videoSpeed: 1
-            
-        }, function(items) {
-            speed(items.videoSpeed);
-        });
-    
-    });
+observer.observe(document, {
+    childList : true,
+    subtree: true
 
-    observer.observe(document.getElementsByTagName("video")[0], {
-        childList : true,
-        attributes: true
-    
-    });
-}, 5000);
-
+});
+speedDefault();
 function hotKeys(value){
     switch(value){
       case "Speed1":
@@ -81,12 +72,19 @@ function hotKeys(value){
         break;
     }
 }
-
-  function speed(speed){
-    chrome.storage.sync.set({
-      videoSpeed: speed
-    });
-    if(document.getElementsByTagName("video")[0]){
-        document.getElementsByTagName("video")[0].playbackRate=speed;
-    }    
-  }
+function speedDefault(){
+  chrome.storage.sync.get({
+    videoSpeed: 1
+    
+  }, function(items) {
+    speed(items.videoSpeed);
+  });
+}
+function speed(speed){
+  chrome.storage.sync.set({
+    videoSpeed: speed
+  });
+  document.querySelectorAll("video").forEach(element => {
+    element.playbackRate = speed;
+  });
+}

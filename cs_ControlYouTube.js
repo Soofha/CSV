@@ -1,5 +1,3 @@
-
-
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     switch(message.type) {
         
@@ -16,21 +14,43 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         break;
     }
 });
-speedDefault();
+
 
 MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+//Так как ютуб не пересоздает, а обновляет video, следим за его обновлением
+var observer2 = new MutationObserver(function(mutationList, observer){
+  speedDefault();
+});
+var observer = new MutationObserver(function(mutationsList, observer) {
+  
+  for(let mutation of mutationsList) {
+    for(let node of mutation.addedNodes) {
+      if(node instanceof HTMLVideoElement){ 
+        speedDefault();
+        //Когда создается новое видео начинаем за ним следить
+        observer2.observe(node, {
+          childList: true,
+          attributes: true
+        });
+      }
+    }
+  }
 
-var observer = new MutationObserver(function(mutations, observer) {
-   
-    speedDefault();
-    
 });
 
-//document.getElementsByTagName("title")[0] Костыль для поиска перехода на новое видео
-  observer.observe(document.getElementsByTagName("title")[0], {
-    childList : true
-    
+observer.observe(document, {
+    childList : true,
+    subtree: true
+
 });
+//Если видео создалось раньше чем началось слежение за ним
+document.querySelectorAll("video").forEach(element => {
+  observer2.observe(element, {
+    childList: true,
+    attributes: true
+  });
+});
+speedDefault();
 
 function speedDefault(){
   chrome.storage.sync.get({
@@ -40,14 +60,13 @@ function speedDefault(){
     speed(items.videoSpeed);
   });
 }
-
 function speed(speed){
   chrome.storage.sync.set({
     videoSpeed: speed
   });
-  if(document.getElementsByClassName("video-stream html5-main-video")[0]){
-    document.getElementsByClassName("video-stream html5-main-video")[0].playbackRate = speed;
-  }
+  document.querySelectorAll("video").forEach(element => {
+    element.playbackRate = speed;
+  });
 }
 
 function hotKeys(value){
